@@ -49,6 +49,15 @@ const nextConfig = {
       },
     ],
   },
+  // Añadir el proxy aquí
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://localhost:4000/api/:path*",
+      },
+    ];
+  },
 };
 
 
