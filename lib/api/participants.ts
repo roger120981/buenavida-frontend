@@ -1,6 +1,5 @@
-// lib/api/participants.ts
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "./../../config/axios.config"; // Tu configuración de Axios
+import { useQuery, useMutation, useQueryClient, UseMutationResult } from "@tanstack/react-query";
+import { api } from "./../../config/axios.config";
 import {
   PaginatedParticipantResponse,
   Participant,
@@ -57,7 +56,7 @@ export const useParticipantById = (id: number) => {
   return useQuery({
     queryKey: ["participant", id],
     queryFn: () => fetchParticipantById(id),
-    enabled: !!id, // Solo ejecuta si hay un ID válido
+    enabled: !!id,
   });
 };
 
@@ -105,7 +104,12 @@ const deleteParticipant = async (id: number): Promise<{ success: boolean; messag
   return response.data;
 };
 
-export const useDeleteParticipant = () => {
+export const useDeleteParticipant = (): UseMutationResult<
+  { success: boolean; message: string },
+  Error,
+  number,
+  unknown
+> => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteParticipant,
