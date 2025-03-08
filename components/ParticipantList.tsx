@@ -3,6 +3,7 @@ import { useParticipants } from "@/lib/api/participants";
 import { useParticipantFilterStore } from "@/store/participantFilterStore";
 import { DataTable } from "../app/[lang]/(dashboard)/participants/data-table"; // Ruta ajustada
 import { columns } from "../app/[lang]/(dashboard)/participants/columns"; // Ruta ajustada
+import ParticipantsOverview from "../app/[lang]/(dashboard)/participants/ParticipantsOverview"; // Nuevo import
 import React from "react";
 
 export default function ParticipantList() {
@@ -24,12 +25,15 @@ export default function ParticipantList() {
   if (!data) return <div>No hay datos disponibles</div>;
 
   return (
-    <DataTable
-      columns={columns}
-      data={data.data}
-      total={data.total}
-      totalPages={data.totalPages}
-      hasNext={data.hasNext}
-    />
+    <>
+      <ParticipantsOverview data={data.data} /> {/* Añadimos el overview */}
+      <DataTable
+        columns={columns}
+        data={data.data}
+        total={data.total}
+        totalPages={data.totalPages}
+        hasNext={data.hasNext}
+      />
+    </>
   );
 }
