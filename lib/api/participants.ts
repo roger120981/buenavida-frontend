@@ -118,3 +118,19 @@ export const useDeleteParticipant = (): UseMutationResult<
     },
   });
 };
+
+// Fetch para el endpoint /participants/status/:isActive
+const fetchParticipantsByStatus = async (isActive: 0 | 1): Promise<Participant[]> => {
+  const url = `/participants/status/${isActive}`;
+  console.log("Solicitando a:", `${api.defaults.baseURL}${url}`);
+  const response = await api.get(url);
+  return response.data;
+};
+
+export const useParticipantsByStatus = (isActive: 0 | 1) => {
+  return useQuery({
+    queryKey: ["participantsByStatus", isActive],
+    queryFn: () => fetchParticipantsByStatus(isActive),
+    enabled: true,
+  });
+};

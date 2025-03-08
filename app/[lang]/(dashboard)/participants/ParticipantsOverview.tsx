@@ -55,15 +55,15 @@ const ParticipantsOverview = ({ data }: { data: Participant[] }) => {
   }, [data]);
 
   return (
-    <div className="mb-8"> {/* Margen inferior para separar de la tabla */}
+    <div className="mb-8">
       <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Participants Overview</h2> {/* Título dentro del contenedor */}
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Participants Overview</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {stats.map((item) => (
             <div
               key={`participant-stats-${item.id}`}
               className={cn(
-                "rounded-lg p-4 w-full shadow-md", // Bordes redondeados y sombra
+                "rounded-lg p-4 w-full shadow-md",
                 {
                   "bg-blue-50": item.color === "primary",
                   "bg-green-50": item.color === "success",

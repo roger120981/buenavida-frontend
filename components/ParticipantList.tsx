@@ -1,6 +1,6 @@
 "use client";
 
-import { useParticipants, useDeleteParticipant } from "@/lib/api/participants";
+import { useParticipants, useDeleteParticipant, useParticipantsByStatus } from "@/lib/api/participants";
 import { useParticipantFilterStore } from "@/store/participantFilterStore";
 import { DataTable } from "../app/[lang]/(dashboard)/participants/data-table";
 import { columns } from "../app/[lang]/(dashboard)/participants/columns";
@@ -27,11 +27,17 @@ export default function ParticipantList() {
     sortBy,
     sortOrder,
   });
+  // Obtenemos activos e inactivos por separado
+  const { data: activeData, isLoading: isActiveLoading, error: activeError } = useParticipantsByStatus(1);
+  const { data: inactiveData, isLoading: isInactiveLoading, error: inactiveError } = useParticipantsByStatus(0);
   const { mutate: deleteParticipant, isPending: isDeleting } = useDeleteParticipant();
 
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
+
+  // Combinamos los datos de activos e inactivos
+  const combinedData = activeData && inactiveData ? [...activeData, ...inactiveData] : [];
 
   React.useEffect(() => {
     console.log("Fetch parameters:", { filters, page, pageSize, sortBy, sortOrder });
@@ -71,19 +77,20 @@ export default function ParticipantList() {
     console.log("selectedParticipant:", selectedParticipant);
   }, [viewModalOpen, deleteModalOpen, selectedParticipant]);
 
-  // Log para verificar que las funciones se pasan a DataTable
   React.useEffect(() => {
     console.log("onView function:", handleView);
     console.log("onDelete function:", handleDelete);
   }, []);
 
-  if (isLoading) return <div>Cargando participantes...</div>;
+  if (isLoading || isActiveLoading || isInactiveLoading) return <div>Cargando participantes...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  if (!data) return <div>No hay datos disponibles</div>;
+  if (activeError) return <div>Error al cargar participantes activos: {activeError.message}</div>;
+  if (inactiveError) return <div>Error al cargar participantes inactivos: {inactiveError.message}</div>;
+  if (!data || !activeData || !inactiveData) return <div>No hay datos disponibles</div>;
 
   return (
     <>
-      <ParticipantsOverview data={data.data} />
+      <ParticipantsOverview data={combinedData} /> {/* Pasamos los datos combinados */}
       <DataTable
         columns={columns}
         data={data.data}
@@ -94,7 +101,6 @@ export default function ParticipantList() {
         onDelete={handleDelete}
       />
 
-      {/* Modal para View */}
       <Dialog
         open={viewModalOpen}
         onOpenChange={(open) => {
@@ -156,7 +162,6 @@ export default function ParticipantList() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal para Delete */}
       <Dialog
         open={deleteModalOpen}
         onOpenChange={(open) => {
@@ -169,8 +174,7 @@ export default function ParticipantList() {
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this participant? This action cannot be
-              undone.
+              Are you sure you want to delete this participant? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
