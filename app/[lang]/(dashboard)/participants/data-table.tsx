@@ -39,6 +39,10 @@ interface DataTableProps {
 }
 
 export function DataTable({ columns, data, total, totalPages, hasNext }: DataTableProps) {
+  React.useEffect(() => {
+    console.log("Data received by DataTable:", data); // Log para verificar los datos recibidos
+  }, [data]);
+
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
