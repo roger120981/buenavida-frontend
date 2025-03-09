@@ -6,9 +6,15 @@ import { DataTableColumnHeader } from "./data-table-column-header";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, TableMeta } from "@tanstack/react-table"; // Importamos TableMeta
 import { Participant } from "@/lib/types/participants";
 import { formatDateShort } from "@/lib/utils"; // Ajusta la ruta según tu estructura
+
+// Definimos una interfaz para el meta del table que incluye onView y onDelete
+interface TableMetaType {
+  onView?: (participant: Participant) => void;
+  onDelete?: (participant: Participant) => void;
+}
 
 export const columns: ColumnDef<Participant, any>[] = [
   {
@@ -195,31 +201,49 @@ export const columns: ColumnDef<Participant, any>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Actions" />
     ),
-    cell: ({ row }) => (
-      <div className="flex gap-1 items-center justify-end">
-        <Button
-          asChild
-          size="icon"
-          className="h-8 w-8 rounded bg-gray-100 hover:bg-blue-600 text-gray-600 hover:text-white transition-colors"
-        >
-          <Link href={`/participants/${row.getValue("id")}`}>
-            <Icon icon="heroicons:eye" className="w-4 h-4 text-current" />
+    cell: ({ row, table }) => {
+      const participant = row.original;
+      const { onView, onDelete } = table.options.meta as TableMetaType; // Accedemos a meta
+      return (
+        <div className="flex gap-1 items-center justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              console.log("View button clicked for participant:", participant);
+              if (typeof onView === "function") {
+                onView(participant);
+              } else {
+                console.error("onView is not a function:", onView);
+              }
+            }}
+            title="View"
+          >
+            <Icon icon="heroicons:eye" className="w-4 h-4 text-gray-600" />
+          </Button>
+          <Link href={`/participants/${row.original.id}/edit`}>
+            <Button variant="ghost" size="sm" title="Edit">
+              <Icon icon="heroicons:pencil" className="w-4 h-4 text-gray-600" />
+            </Button>
           </Link>
-        </Button>
-        <Button
-          size="icon"
-          className="h-8 w-8 rounded bg-gray-100 hover:bg-blue-600 text-gray-600 hover:text-white transition-colors"
-        >
-          <Icon icon="heroicons:pencil-square" className="w-4 h-4 text-current" />
-        </Button>
-        <Button
-          size="icon"
-          className="h-8 w-8 rounded bg-gray-100 hover:bg-blue-600 text-gray-600 hover:text-white transition-colors"
-        >
-          <Icon icon="heroicons:trash" className="w-4 h-4 text-current" />
-        </Button>
-      </div>
-    ),
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              console.log("Delete button clicked for participant:", participant);
+              if (typeof onDelete === "function") {
+                onDelete(participant);
+              } else {
+                console.error("onDelete is not a function:", onDelete);
+              }
+            }}
+            title="Delete"
+          >
+            <Icon icon="heroicons:trash" className="w-4 h-4 text-gray-600" />
+          </Button>
+        </div>
+      );
+    },
     enableSorting: false,
   },
 ];

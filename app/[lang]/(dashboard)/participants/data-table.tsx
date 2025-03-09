@@ -53,18 +53,6 @@ export function DataTable({
 }: DataTableProps) {
   React.useEffect(() => {
     console.log("Data received by DataTable:", data);
-
-    // Listener global para capturar todos los clics
-    const handleGlobalClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("[data-testid='view-button']") || target.closest("[data-testid='delete-button']")) {
-        console.log("Global click detected on button:", target);
-      } else {
-        console.log("Global click detected outside buttons:", target);
-      }
-    };
-    window.addEventListener("click", handleGlobalClick, { capture: true });
-    return () => window.removeEventListener("click", handleGlobalClick);
   }, [data]);
 
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
@@ -85,27 +73,13 @@ export function DataTable({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                onClick={() => {
                   console.log("View button clicked for participant:", row.original);
-                  window.dispatchEvent(
-                    new CustomEvent("logEvent", {
-                      detail: {
-                        message: `View button clicked: ${JSON.stringify(row.original)}`,
-                      },
-                    })
-                  );
-                  setTimeout(() => {
-                    if (typeof onView === "function") {
-                      onView(row.original);
-                    } else {
-                      console.error("onView is not a function:", onView);
-                    }
-                  }, 0);
+                  if (typeof onView === "function") {
+                    onView(row.original);
+                  }
                 }}
                 title="View"
-                data-testid="view-button"
               >
                 <Icon icon="heroicons:eye" className="w-4 h-4" />
               </Button>
@@ -117,27 +91,13 @@ export function DataTable({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                onClick={() => {
                   console.log("Delete button clicked for participant:", row.original);
-                  window.dispatchEvent(
-                    new CustomEvent("logEvent", {
-                      detail: {
-                        message: `Delete button clicked: ${JSON.stringify(row.original)}`,
-                      },
-                    })
-                  );
-                  setTimeout(() => {
-                    if (typeof onDelete === "function") {
-                      onDelete(row.original);
-                    } else {
-                      console.error("onDelete is not a function:", onDelete);
-                    }
-                  }, 0);
+                  if (typeof onDelete === "function") {
+                    onDelete(row.original);
+                  }
                 }}
                 title="Delete"
-                data-testid="delete-button"
               >
                 <Icon icon="heroicons:trash" className="w-4 h-4" />
               </Button>
@@ -148,18 +108,6 @@ export function DataTable({
     }
     return originalColumns;
   }, [originalColumns, onView, onDelete]);
-
-  const handleRowClick = (e: React.MouseEvent<HTMLTableRowElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Row click prevented for row:", e.currentTarget.dataset.rowId);
-  };
-
-  const handleCellClick = (e: React.MouseEvent<HTMLTableCellElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Cell click prevented for cell:", e.currentTarget.dataset.cellId);
-  };
 
   const table = useReactTable<Participant>({
     data,
@@ -181,6 +129,7 @@ export function DataTable({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    meta: { onView, onDelete }, // Pasamos onView y onDelete a meta
   });
 
   return (
@@ -221,15 +170,11 @@ export function DataTable({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="border-b border-gray-200 hover:bg-gray-50"
-                  onClick={handleRowClick}
-                  data-row-id={row.original.id}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
                       className="text-sm text-gray-700 px-4 py-3 ltr:last:text-right rtl:last:text-left"
-                      onClick={handleCellClick}
-                      data-cell-id={cell.id}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
