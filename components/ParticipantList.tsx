@@ -17,6 +17,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Participant } from "@/lib/types/participants";
 import React from "react";
+import { Icon } from "@iconify/react"; // Añadido para los íconos
+import { Badge } from "@/components/ui/badge"; // Añadido para el componente Badge
+import { formatDateShort } from "@/lib/utils"; // Importamos el helper
 
 export default function ParticipantList() {
   const { filters, page, pageSize, sortBy, sortOrder } = useParticipantFilterStore();
@@ -109,55 +112,184 @@ export default function ParticipantList() {
           if (!open) setSelectedParticipant(null);
         }}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Participant Details</DialogTitle>
+        <DialogContent size="4xl" className="[&>button]:top-8 [&>button]:right-8 max-h-[90vh] overflow-y-auto bg-white shadow border border-gray-200">
+          <DialogHeader className="bg-blue-600 p-6 text-white">
+            <DialogTitle className="flex items-center text-2xl font-bold">
+              <Icon icon="heroicons:user" className="w-8 h-8 mr-3" />
+              Participant Details
+            </DialogTitle>
           </DialogHeader>
           {selectedParticipant ? (
-            <div className="space-y-2">
-              <p><strong>ID:</strong> {selectedParticipant.id}</p>
-              <p><strong>Name:</strong> {selectedParticipant.name}</p>
-              <p><strong>Medicaid ID:</strong> {selectedParticipant.medicaidId}</p>
-              <p><strong>Gender:</strong> {selectedParticipant.gender}</p>
-              <p><strong>Date of Birth:</strong> {selectedParticipant.dob}</p>
-              <p>
-                <strong>Status:</strong>{" "}
-                {selectedParticipant.isActive ? "Active" : "Inactive"}
-              </p>
-              <p><strong>Location:</strong> {selectedParticipant.location}</p>
-              <p><strong>Community:</strong> {selectedParticipant.community}</p>
-              <p><strong>Address:</strong> {selectedParticipant.address}</p>
-              <p><strong>Primary Phone:</strong> {selectedParticipant.primaryPhone}</p>
-              {selectedParticipant.secondaryPhone && (
-                <p>
-                  <strong>Secondary Phone:</strong>{" "}
-                  {selectedParticipant.secondaryPhone}
-                </p>
-              )}
-              <p><strong>LOC Start Date:</strong> {selectedParticipant.locStartDate}</p>
-              <p><strong>LOC End Date:</strong> {selectedParticipant.locEndDate}</p>
-              <p><strong>POC Start Date:</strong> {selectedParticipant.pocStartDate}</p>
-              <p><strong>POC End Date:</strong> {selectedParticipant.pocEndDate}</p>
-              {selectedParticipant.units && (
-                <p><strong>Units:</strong> {selectedParticipant.units}</p>
-              )}
-              {selectedParticipant.hours && (
-                <p><strong>Hours:</strong> {selectedParticipant.hours}</p>
-              )}
-              <p><strong>HDM:</strong> {selectedParticipant.hdm ? "Yes" : "No"}</p>
-              <p><strong>ADHC:</strong> {selectedParticipant.adhc ? "Yes" : "No"}</p>
-              <p>
-                <strong>Case Manager:</strong> {selectedParticipant.caseManager.name} (ID:{" "}
-                {selectedParticipant.caseManager.id})
-              </p>
-              <p><strong>Created At:</strong> {selectedParticipant.createdAt}</p>
-              <p><strong>Updated At:</strong> {selectedParticipant.updatedAt}</p>
+            <div className="p-6 space-y-6">
+              {/* Sección: Información Personal */}
+              <div className="bg-white p-4 shadow border border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Información Personal</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:identification" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">ID:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.id}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:user" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Name:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.name}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:shield-check" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Medicaid ID:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.medicaidId}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:users" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Gender:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.gender}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:calendar" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Date of Birth:</span>
+                    <span className="text-base text-gray-900">{formatDateShort(selectedParticipant.dob)}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:check-circle" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Status:</span>
+                    <Badge
+                      variant="soft"
+                      color={selectedParticipant.isActive ? "success" : "warning"}
+                      className="text-sm px-2 py-0.5 rounded"
+                    >
+                      {selectedParticipant.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección: Información de Contacto */}
+              <div className="bg-white p-4 shadow border border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Información de Contacto</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:map-pin" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Location:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.location}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:building-office" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Community:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.community}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:home" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Address:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.address}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:phone" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Primary Phone:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.primaryPhone}</span>
+                  </div>
+                  {selectedParticipant.secondaryPhone && (
+                    <div className="flex items-center space-x-3">
+                      <Icon icon="heroicons:phone" className="w-5 h-5 text-blue-500" />
+                      <span className="text-sm font-medium text-gray-700">Secondary Phone:</span>
+                      <span className="text-base text-gray-900">{selectedParticipant.secondaryPhone}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Sección: Fechas */}
+              <div className="bg-white p-4 shadow border border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Fechas</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:calendar" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">LOC Start Date:</span>
+                    <span className="text-base text-gray-900">{formatDateShort(selectedParticipant.locStartDate)}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:calendar" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">LOC End Date:</span>
+                    <span className="text-base text-gray-900">{formatDateShort(selectedParticipant.locEndDate)}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:calendar" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">POC Start Date:</span>
+                    <span className="text-base text-gray-900">{formatDateShort(selectedParticipant.pocStartDate)}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:calendar" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">POC End Date:</span>
+                    <span className="text-base text-gray-900">{formatDateShort(selectedParticipant.pocEndDate)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección: Detalles del Programa */}
+              <div className="bg-white p-4 shadow border border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Detalles del Programa</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {selectedParticipant.units && (
+                    <div className="flex items-center space-x-3">
+                      <Icon icon="heroicons:clock" className="w-5 h-5 text-blue-500" />
+                      <span className="text-sm font-medium text-gray-700">Units:</span>
+                      <span className="text-base text-gray-900">{selectedParticipant.units}</span>
+                    </div>
+                  )}
+                  {selectedParticipant.hours && (
+                    <div className="flex items-center space-x-3">
+                      <Icon icon="heroicons:clock" className="w-5 h-5 text-blue-500" />
+                      <span className="text-sm font-medium text-gray-700">Hours:</span>
+                      <span className="text-base text-gray-900">{selectedParticipant.hours}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:check-circle" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">HDM:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.hdm ? "Yes" : "No"}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:check-circle" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">ADHC:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.adhc ? "Yes" : "No"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección: Metadatos */}
+              <div className="bg-white p-4 shadow border border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Metadatos</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:user-circle" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Case Manager:</span>
+                    <span className="text-base text-gray-900">{selectedParticipant.caseManager.name} (ID: {selectedParticipant.caseManager.id})</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:calendar" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Created At:</span>
+                    <span className="text-base text-gray-900">{formatDateShort(selectedParticipant.createdAt)}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Icon icon="heroicons:calendar" className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium text-gray-700">Updated At:</span>
+                    <span className="text-base text-gray-900">{formatDateShort(selectedParticipant.updatedAt)}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
-            <p>No participant selected</p>
+            <div className="p-6 text-center text-gray-500">
+              No participant selected
+            </div>
           )}
-          <DialogFooter>
-            <Button onClick={() => setViewModalOpen(false)}>Close</Button>
+          <DialogFooter className="p-6 bg-gray-50 border-t-2 border-blue-200">
+            <Button
+              onClick={() => setViewModalOpen(false)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-none font-medium transition-colors"
+            >
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
