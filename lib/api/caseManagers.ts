@@ -5,8 +5,17 @@ import { CaseManager, Agency, CaseManagerResponse, AgencyResponse } from "@/lib/
 
 // Listar todos los case managers
 const fetchCaseManagers = async (): Promise<CaseManagerResponse> => {
-  const response = await api.get("/case-managers");
-  return response.data;
+  // MODIFICACIÓN: Añadí parámetros por defecto y manejo de errores
+  try {
+    const response = await api.get("/case-managers", {
+      params: { page: 1, pageSize: 10 }, // MODIFICACIÓN: Asegura que el backend no falle
+    });
+    console.log('Response from /case-managers:', response.data); // MODIFICACIÓN: Depuración
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching case managers:', error); // MODIFICACIÓN: Registro de errores
+    throw error;
+  }
 };
 
 export const useCaseManagers = () => {
@@ -18,8 +27,17 @@ export const useCaseManagers = () => {
 
 // Listar todas las agencias
 const fetchAgencies = async (): Promise<AgencyResponse> => {
-  const response = await api.get("/agencies");
-  return response.data;
+  // MODIFICACIÓN: Añadí parámetros por defecto y manejo de errores
+  try {
+    const response = await api.get("/agencies", {
+      params: { page: 1, pageSize: 10 }, // MODIFICACIÓN: Asegura compatibilidad
+    });
+    console.log('Response from /agencies:', response.data); // MODIFICACIÓN: Depuración
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching agencies:', error); // MODIFICACIÓN: Registro de errores
+    throw error;
+  }
 };
 
 export const useAgencies = () => {

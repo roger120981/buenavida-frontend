@@ -15,11 +15,20 @@ interface CaseManagerFormProps {
 }
 
 export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) {
-  const { control, resetField, getValues } = useFormContext() || { control: propControl }; // Desestructuramos los métodos necesarios
+  const { control, resetField, getValues } = useFormContext() || { control: propControl };
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const { data: caseManagers = { data: [] } } = useCaseManagers();
-  const { data: agencies = { data: [] } } = useAgencies();
+  const { data: caseManagers = { data: [] }, isLoading: cmLoading, error: cmError } = useCaseManagers(); // MODIFICACIÓN: Añadí isLoading y error
+  const { data: agencies = { data: [] }, isLoading: agencyLoading, error: agencyError } = useAgencies(); // MODIFICACIÓN: Añadí isLoading y error
   const createCaseManagerMutation = useCreateCaseManager();
+
+  // MODIFICACIÓN: Depuración del estado
+  console.log('Case Managers:', caseManagers, 'Loading:', cmLoading, 'Error:', cmError);
+  console.log('Agencies:', agencies, 'Loading:', agencyLoading, 'Error:', agencyError);
+
+  // MODIFICACIÓN: Manejo de estado
+  if (cmLoading || agencyLoading) return <div>Loading options...</div>;
+  if (cmError) return <div>Error loading case managers: {cmError.message}</div>;
+  if (agencyError) return <div>Error loading agencies: {agencyError.message}</div>;
 
   const handleCreateCaseManager = () => {
     const formValues = getValues();
@@ -31,8 +40,8 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
     };
     createCaseManagerMutation.mutate(createData, {
       onSuccess: () => {
-        setShowCreateForm(false); // Ocultar el formulario tras éxito
-        resetField("caseManager"); // Resetear el campo caseManager en el formulario
+        setShowCreateForm(false);
+        resetField("caseManager");
       },
       onError: (error) => {
         console.error("Error creating case manager:", error);
