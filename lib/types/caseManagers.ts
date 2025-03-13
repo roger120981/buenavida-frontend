@@ -2,6 +2,11 @@
 export interface CaseManager {
   id: number;
   name: string;
+  email: string;
+  phone: string;
+  agencyId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Agency {
@@ -9,7 +14,6 @@ export interface Agency {
   name: string;
 }
 
-// MODIFICACIÓN: Ajusté para coincidir con la respuesta real del backend
 export interface CaseManagerResponse {
   data: CaseManager[];
   total: number;
@@ -19,7 +23,6 @@ export interface CaseManagerResponse {
   hasNext: boolean;
 }
 
-// MODIFICACIÓN: Ajusté para coincidir con la respuesta del backend (asumiendo que /agencies es similar)
 export interface AgencyResponse {
   data: Agency[];
   total: number;
@@ -27,4 +30,11 @@ export interface AgencyResponse {
   pageSize: number;
   totalPages: number;
   hasNext: boolean;
+}
+
+// MODIFICACIÓN: Nuevo tipo para la respuesta de la mutación
+export interface CreateCaseManagerResponse {
+  success: boolean;
+  message: string;
+  data: CaseManager;
 }

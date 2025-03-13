@@ -1,3 +1,4 @@
+// CreateParticipantPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -14,6 +15,13 @@ import { useCreateParticipant } from "@/lib/api/participants";
 import { ParticipantFormData, participantSchema } from "@/lib/schemas/participantSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateParticipantDto } from "@/lib/types/participants";
+import { toast } from "@/components/ui/use-toast";
+import { AxiosError } from "axios";
+
+// Definimos un tipo para la respuesta de error del backend
+interface ErrorResponse {
+  message?: string;
+}
 
 export default function CreateParticipantPage({ params: { lng } }: { params: { lng: string } }) {
   const router = useRouter();
@@ -24,46 +32,84 @@ export default function CreateParticipantPage({ params: { lng } }: { params: { l
     defaultValues: {
       name: "",
       medicaidId: "",
-      dob: "",
+      dob: "2023-01-01",
       gender: undefined,
       isActive: true,
       hdm: false,
       adhc: false,
+      location: "",
+      community: "",
+      address: "",
+      primaryPhone: "",
+      secondaryPhone: "",
+      locStartDate: "2023-01-01",
+      locEndDate: "2023-01-01",
+      pocStartDate: "2023-01-01",
+      pocEndDate: "2023-01-01",
+      units: 0,
+      hours: 0,
       caseManager: {
         connect: { id: undefined },
-        create: { name: "", email: "", phone: "", agencyId: undefined },
+        create: undefined,
       },
     },
+    shouldFocusError: false,
   });
 
-  const { handleSubmit, control, formState: { errors } } = form;
+  const { handleSubmit, control, formState: { errors }, watch, trigger } = form;
   const createParticipantMutation = useCreateParticipant();
 
+  const caseManagerValue = watch("caseManager");
+  console.log("Current caseManager value:", caseManagerValue);
+
   const onSubmit = async (data: ParticipantFormData) => {
+    console.log("Submitting participant data:", data);
     setIsLoading(true);
     try {
+      await trigger("caseManager.connect.id");
       const transformedData: CreateParticipantDto = {
         ...data,
+        location: data.location,
+        community: data.community,
+        address: data.address,
+        primaryPhone: data.primaryPhone,
+        secondaryPhone: data.secondaryPhone,
+        locStartDate: data.locStartDate,
+        locEndDate: data.locEndDate,
+        pocStartDate: data.pocStartDate,
+        pocEndDate: data.pocEndDate,
+        units: data.units ?? 0,
+        hours: data.hours ?? 0,
         caseManager: {
-          ...data.caseManager,
-          create: data.caseManager?.create
-            ? {
-                name: data.caseManager.create.name,
-                email: data.caseManager.create.email || "",
-                phone: data.caseManager.create.phone || "",
-                agencyId: data.caseManager.create.agencyId
-                  ? Number(data.caseManager.create.agencyId)
-                  : 0,
-              }
+          create: undefined,
+          connect: data.caseManager?.connect?.id
+            ? { id: Number(data.caseManager.connect.id) }
             : undefined,
         },
       };
 
+      console.log("Transformed data for participant:", transformedData);
+
+      if (!transformedData.caseManager.connect) {
+        throw new Error("A case manager must be selected.");
+      }
+
       await createParticipantMutation.mutateAsync(transformedData);
+      toast({
+        title: "Success",
+        description: "Participant created successfully!",
+        color: "success",
+      });
       router.push(`/${lng}/(dashboard)/participants`);
       router.refresh();
     } catch (error) {
-      console.error("Error creating participant:", error);
+      const axiosError = error as AxiosError<ErrorResponse>;
+      console.error("Error creating participant:", axiosError.response?.data || axiosError.message);
+      toast({
+        title: "Error",
+        description: axiosError.response?.data?.message || axiosError.message || "Failed to create participant.",
+        color: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -72,6 +118,24 @@ export default function CreateParticipantPage({ params: { lng } }: { params: { l
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
       console.log("Form errors:", errors);
+      const caseManagerError = errors.caseManager;
+      let errorMessage = "Please fix the errors in the form before submitting.";
+      if (caseManagerError) {
+        if (caseManagerError.connect && caseManagerError.connect.id) {
+          errorMessage = `Invalid case manager ID: ${caseManagerError.connect.id.message}`;
+        } else if (caseManagerError.connect) {
+          errorMessage = "Please select a valid case manager.";
+        } else if (caseManagerError.create) {
+          errorMessage = `Case manager creation error: ${
+            caseManagerError.create.name?.message || caseManagerError.create.agencyId?.message || "Invalid details"
+          }`;
+        }
+      }
+      toast({
+        title: "Form Errors",
+        description: errorMessage,
+        color: "destructive",
+      });
     }
   }, [errors]);
 
@@ -130,6 +194,81 @@ export default function CreateParticipantPage({ params: { lng } }: { params: { l
                 name="adhc"
                 errors={errors}
                 control={control}
+              />
+              <FormInput
+                label="Location"
+                name="location"
+                register={form.register}
+                errors={errors}
+                icon="mdi:map-marker"
+              />
+              <FormInput
+                label="Community"
+                name="community"
+                register={form.register}
+                errors={errors}
+                icon="mdi:account-group"
+              />
+              <FormInput
+                label="Address"
+                name="address"
+                register={form.register}
+                errors={errors}
+                icon="mdi:home"
+              />
+              <FormInput
+                label="Primary Phone"
+                name="primaryPhone"
+                register={form.register}
+                errors={errors}
+                icon="mdi:phone"
+              />
+              <FormInput
+                label="Secondary Phone"
+                name="secondaryPhone"
+                register={form.register}
+                errors={errors}
+                icon="mdi:phone-plus"
+              />
+              <FormDatePicker
+                label="Location Start Date"
+                name="locStartDate"
+                errors={errors}
+                control={control}
+              />
+              <FormDatePicker
+                label="Location End Date"
+                name="locEndDate"
+                errors={errors}
+                control={control}
+              />
+              <FormDatePicker
+                label="POC Start Date"
+                name="pocStartDate"
+                errors={errors}
+                control={control}
+              />
+              <FormDatePicker
+                label="POC End Date"
+                name="pocEndDate"
+                errors={errors}
+                control={control}
+              />
+              <FormInput
+                label="Units"
+                name="units"
+                register={form.register}
+                errors={errors}
+                icon="mdi:numeric"
+                type="number"
+              />
+              <FormInput
+                label="Hours"
+                name="hours"
+                register={form.register}
+                errors={errors}
+                icon="mdi:clock"
+                type="number"
               />
               <CaseManagerForm control={control} />
               <CaregiverAssignment participantId={undefined} />

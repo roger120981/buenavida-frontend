@@ -1,5 +1,5 @@
 // components/form/CaseManagerForm.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -8,24 +8,22 @@ import { Input } from "@/components/ui/input";
 import { Controller } from "react-hook-form";
 import { Icon } from "@iconify/react";
 import { useCaseManagers, useAgencies, useCreateCaseManager } from "@/lib/api/caseManagers";
-import { CaseManager, Agency } from "@/lib/types/caseManagers";
+import { CaseManager, Agency, CreateCaseManagerResponse } from "@/lib/types/caseManagers";
 
 interface CaseManagerFormProps {
   control: any;
 }
 
 export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) {
-  const { control, resetField, getValues } = useFormContext() || { control: propControl };
+  const { control, getValues, setValue, watch } = useFormContext() || { control: propControl };
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const { data: caseManagers = { data: [] }, isLoading: cmLoading, error: cmError } = useCaseManagers(); // MODIFICACIÓN: Añadí isLoading y error
-  const { data: agencies = { data: [] }, isLoading: agencyLoading, error: agencyError } = useAgencies(); // MODIFICACIÓN: Añadí isLoading y error
+  const { data: caseManagers = { data: [] }, isLoading: cmLoading, error: cmError, refetch: refetchCaseManagers } = useCaseManagers();
+  const { data: agencies = { data: [] }, isLoading: agencyLoading, error: agencyError } = useAgencies();
   const createCaseManagerMutation = useCreateCaseManager();
 
-  // MODIFICACIÓN: Depuración del estado
   console.log('Case Managers:', caseManagers, 'Loading:', cmLoading, 'Error:', cmError);
   console.log('Agencies:', agencies, 'Loading:', agencyLoading, 'Error:', agencyError);
 
-  // MODIFICACIÓN: Manejo de estado
   if (cmLoading || agencyLoading) return <div>Loading options...</div>;
   if (cmError) return <div>Error loading case managers: {cmError.message}</div>;
   if (agencyError) return <div>Error loading agencies: {agencyError.message}</div>;
@@ -33,18 +31,44 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
   const handleCreateCaseManager = () => {
     const formValues = getValues();
     const createData = {
-      name: formValues.caseManager.create.name,
-      email: formValues.caseManager.create.email,
-      phone: formValues.caseManager.create.phone,
-      agencyId: formValues.caseManager.create.agencyId,
+      name: formValues.caseManager.create?.name,
+      email: formValues.caseManager.create?.email || "default@example.com",
+      phone: formValues.caseManager.create?.phone || "000-000-0000",
+      agencyId: formValues.caseManager.create?.agencyId,
     };
-    createCaseManagerMutation.mutate(createData, {
-      onSuccess: () => {
+
+    console.log("Selected agencyId before validation:", formValues.caseManager.create?.agencyId);
+
+    if (!createData.name || createData.agencyId == null || createData.agencyId < 1) {
+      alert("Please provide a name and select a valid agency for the case manager.");
+      return;
+    }
+
+    console.log("Sending data to create case manager:", createData);
+
+    createCaseManagerMutation.mutate(createData as { name: string; email: string; phone: string; agencyId: number }, {
+      onSuccess: (newCaseManager: CreateCaseManagerResponse) => {
+        console.log("New case manager response (onSuccess):", newCaseManager);
         setShowCreateForm(false);
-        resetField("caseManager");
+        if (newCaseManager.data && typeof newCaseManager.data.id === 'number') {
+          console.log("Setting caseManager.connect.id to:", newCaseManager.data.id);
+          // Actualizamos el Select para seleccionar automáticamente el nuevo caseManager
+          setValue("caseManager.connect.id", newCaseManager.data.id);
+          setValue("caseManager.create", undefined);
+          // Refrescamos la lista de caseManagers para incluir el nuevo
+          refetchCaseManagers();
+          const updatedValue = watch("caseManager");
+          console.log("Updated caseManager value after setValue:", updatedValue);
+          alert("Case manager created successfully with ID: " + newCaseManager.data.id);
+        } else {
+          console.error("Invalid or missing ID in response:", newCaseManager);
+          alert("Failed to retrieve a valid case manager ID. Response: " + JSON.stringify(newCaseManager));
+        }
       },
-      onError: (error) => {
+      onError: (error: any) => {
+        console.log("New case manager response (onError):", error.response?.data || error.message);
         console.error("Error creating case manager:", error);
+        alert("Failed to create case manager: " + (error.response?.data?.message || error.message || "Unknown error"));
       },
     });
   };
@@ -57,7 +81,13 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
           control={control}
           defaultValue={null}
           render={({ field: { onChange, value } }) => (
-            <Select onValueChange={onChange} value={value?.toString() || ""}>
+            <Select
+              onValueChange={(val) => {
+                console.log("Selected value:", val);
+                onChange(val ? parseInt(val, 10) : null);
+              }}
+              value={value?.toString() || ""}
+            >
               <SelectTrigger className="rounded-none border-default-300 w-full">
                 <SelectValue placeholder="Select Case Manager" />
               </SelectTrigger>
@@ -156,10 +186,14 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
             name="caseManager.create.agencyId"
             control={control}
             defaultValue=""
+            rules={{ required: "Agency is required" }}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="caseManager.create.agencyId">Agency</Label>
-                <Select onValueChange={onChange} value={value?.toString() || ""}>
+                <Select onValueChange={(val) => {
+                  console.log("Selected agencyId:", val);
+                  onChange(val ? parseInt(val, 10) : null);
+                }} value={value?.toString() || ""}>
                   <SelectTrigger className="rounded-none border-default-300 w-full">
                     <SelectValue placeholder="Select Agency" />
                   </SelectTrigger>

@@ -5,15 +5,14 @@ import { CaseManager, Agency, CaseManagerResponse, AgencyResponse } from "@/lib/
 
 // Listar todos los case managers
 const fetchCaseManagers = async (): Promise<CaseManagerResponse> => {
-  // MODIFICACIÓN: Añadí parámetros por defecto y manejo de errores
   try {
     const response = await api.get("/case-managers", {
-      params: { page: 1, pageSize: 10 }, // MODIFICACIÓN: Asegura que el backend no falle
+      params: { page: 1, pageSize: 100 }, // MODIFICACIÓN: Aumentamos pageSize para cargar más elementos
     });
-    console.log('Response from /case-managers:', response.data); // MODIFICACIÓN: Depuración
+    console.log('Response from /case-managers:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error fetching case managers:', error); // MODIFICACIÓN: Registro de errores
+    console.error('Error fetching case managers:', error);
     throw error;
   }
 };
@@ -27,15 +26,14 @@ export const useCaseManagers = () => {
 
 // Listar todas las agencias
 const fetchAgencies = async (): Promise<AgencyResponse> => {
-  // MODIFICACIÓN: Añadí parámetros por defecto y manejo de errores
   try {
     const response = await api.get("/agencies", {
-      params: { page: 1, pageSize: 10 }, // MODIFICACIÓN: Asegura compatibilidad
+      params: { page: "1", pageSize: "10" },
     });
-    console.log('Response from /agencies:', response.data); // MODIFICACIÓN: Depuración
+    console.log('Response from /agencies:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error fetching agencies:', error); // MODIFICACIÓN: Registro de errores
+    console.error('Error fetching agencies:', error);
     throw error;
   }
 };
@@ -52,7 +50,7 @@ const createCaseManager = async (data: {
   name: string;
   email: string;
   phone: string;
-  agencyId: string;
+  agencyId?: number;
 }): Promise<{ success: boolean; message: string; data: CaseManager }> => {
   const response = await api.post("/case-managers", data);
   return response.data;
