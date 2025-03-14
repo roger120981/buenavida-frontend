@@ -89,24 +89,20 @@ export default function CreateParticipantPage({ params: { lng } }: { params: { l
 
       console.log("Transformed data for participant:", transformedData);
 
-      if (!transformedData.caseManager.connect) {
-        throw new Error("A case manager must be selected.");
-      }
-
       await createParticipantMutation.mutateAsync(transformedData);
       toast({
         title: "Success",
         description: "Participant created successfully!",
         color: "success",
       });
-      router.push(`/${lng}/(dashboard)/participants`);
+      router.push(`/participants`);
       router.refresh();
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
       console.error("Error creating participant:", axiosError.response?.data || axiosError.message);
       toast({
         title: "Error",
-        description: axiosError.response?.data?.message || axiosError.message || "Failed to create participant.",
+        description: axiosError.response?.data?.message || axiosError.message || "Failed to create participant. Please ensure the name is unique.",
         color: "destructive",
       });
     } finally {

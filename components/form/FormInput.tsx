@@ -12,7 +12,7 @@ interface FormInputProps {
   icon: string;
   type?: string;
   placeholder?: string;
-  className?: string; // Añadimos el prop className
+  className?: string;
 }
 
 export function FormInput({ label, name, register, errors, icon, type = "text", placeholder, className }: FormInputProps) {

@@ -152,7 +152,7 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
               rules={{ required: "Case Manager Name is required" }}
               render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <div className="flex flex-col gap-1">
-                  <Label htmlFor="caseManager-create-name" className="text-sm font-semibold text-gray-600 mb-1 hover:text-blue-500 transition-colors">
+                  <Label htmlFor="caseManager-create-name" className="text-sm font-semibold text-gray-600 hover:text-blue-500 transition-colors">
                     Name
                   </Label>
                   <div className="relative">
@@ -165,7 +165,7 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
                     />
                     <Icon
                       icon="mdi:user"
-                      className="w-5 h-5 absolute top-1/2 -translate-y-1/2 left-3 text-gray-500"
+                      className="w-5 h-5 absolute top-1/2 -translate-y-1/2 left-3 text-gray-600"
                     />
                   </div>
                   {error && <p className="text-sm text-red-500">{error.message}</p>}
@@ -180,7 +180,7 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
               rules={{ pattern: { value: /^\S+@\S+\.\S+$/, message: "Invalid email format" } }}
               render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <div className="flex flex-col gap-1">
-                  <Label htmlFor="caseManager-create-email" className="text-sm font-semibold text-gray-600 mb-1 hover:text-blue-500 transition-colors">
+                  <Label htmlFor="caseManager-create-email" className="text-sm font-semibold text-gray-600 hover:text-blue-500 transition-colors">
                     Email
                   </Label>
                   <div className="relative">
@@ -194,7 +194,7 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
                     />
                     <Icon
                       icon="ic:outline-email"
-                      className="w-5 h-5 absolute top-1/2 -translate-y-1/2 left-3 text-gray-500"
+                      className="w-5 h-5 absolute top-1/2 -translate-y-1/2 left-3 text-gray-600"
                     />
                   </div>
                   {error && <p className="text-sm text-red-500">{error.message}</p>}
@@ -208,7 +208,7 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
               defaultValue=""
               render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <div className="flex flex-col gap-1">
-                  <Label htmlFor="caseManager-create-phone" className="text-sm font-semibold text-gray-600 mb-1 hover:text-blue-500 transition-colors">
+                  <Label htmlFor="caseManager-create-phone" className="text-sm font-semibold text-gray-600 hover:text-blue-500 transition-colors">
                     Phone
                   </Label>
                   <div className="relative">
@@ -222,7 +222,7 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
                     />
                     <Icon
                       icon="mdi:phone"
-                      className="w-5 h-5 absolute top-1/2 -translate-y-1/2 left-3 text-gray-500"
+                      className="w-5 h-5 absolute top-1/2 -translate-y-1/2 left-3 text-gray-600"
                     />
                   </div>
                   {error && <p className="text-sm text-red-500">{error.message}</p>}
@@ -237,7 +237,7 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
               rules={{ required: "Agency is required" }}
               render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <div className="flex flex-col gap-1">
-                  <Label htmlFor="caseManager-create-agencyId" className="text-sm font-semibold text-gray-600 mb-1 hover:text-blue-500 transition-colors">
+                  <Label htmlFor="caseManager-create-agencyId" className="text-sm font-semibold text-gray-600 hover:text-blue-500 transition-colors">
                     Agency
                   </Label>
                   <Select
@@ -268,6 +268,15 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
                 </div>
               )}
             />
+          </div>
+          <div className="flex justify-end mt-4">
+            <Button
+              type="button"
+              onClick={handleCreateCaseManager}
+              className="rounded-lg bg-blue-500 text-white hover:bg-blue-600 py-2 px-4 shadow-md transition-all"
+            >
+              Save
+            </Button>
           </div>
         </div>
       )}
