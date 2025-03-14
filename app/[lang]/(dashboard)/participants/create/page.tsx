@@ -10,7 +10,6 @@ import { FormDatePicker } from "@/components/form/FormDatePicker";
 import { FormSelect } from "@/components/form/FormSelect";
 import { FormCheckbox } from "@/components/form/FormCheckbox";
 import { CaseManagerForm } from "@/components/form/CaseManagerForm";
-import { CaregiverAssignment } from "@/components/form/CaregiverAssignment";
 import { useCreateParticipant } from "@/lib/api/participants";
 import { ParticipantFormData, participantSchema } from "@/lib/schemas/participantSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -141,146 +140,179 @@ export default function CreateParticipantPage({ params: { lng } }: { params: { l
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="w-full p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-xl font-semibold mb-6 text-gray-700">Create Participant</h1>
+      <div className="w-full p-6 bg-gray-50 rounded-lg shadow-md border-l-2 border-gray-200">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Create Participant</h1>
         <FormProvider {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-6">
-              <FormInput
-                label="Name"
-                name="name"
-                register={form.register}
-                errors={errors}
-                icon="mdi:user"
-              />
-              <FormInput
-                label="Medicaid ID"
-                name="medicaidId"
-                register={form.register}
-                errors={errors}
-                icon="ic:outline-id"
-              />
-              <FormDatePicker
-                label="Date of Birth"
-                name="dob"
-                errors={errors}
-                control={control}
-              />
-              <FormSelect
-                label="Gender"
-                name="gender"
-                errors={errors}
-                options={[
-                  { value: "M", label: "Male" },
-                  { value: "F", label: "Female" },
-                  { value: "O", label: "Other" },
-                ]}
-                control={control}
-              />
-              <FormCheckbox
-                label="Is Active"
-                name="isActive"
-                errors={errors}
-                control={control}
-              />
-              <FormCheckbox
-                label="HDM"
-                name="hdm"
-                errors={errors}
-                control={control}
-              />
-              <FormCheckbox
-                label="ADHC"
-                name="adhc"
-                errors={errors}
-                control={control}
-              />
-              <FormInput
-                label="Location"
-                name="location"
-                register={form.register}
-                errors={errors}
-                icon="mdi:map-marker"
-              />
-              <FormInput
-                label="Community"
-                name="community"
-                register={form.register}
-                errors={errors}
-                icon="mdi:account-group"
-              />
-              <FormInput
-                label="Address"
-                name="address"
-                register={form.register}
-                errors={errors}
-                icon="mdi:home"
-              />
-              <FormInput
-                label="Primary Phone"
-                name="primaryPhone"
-                register={form.register}
-                errors={errors}
-                icon="mdi:phone"
-              />
-              <FormInput
-                label="Secondary Phone"
-                name="secondaryPhone"
-                register={form.register}
-                errors={errors}
-                icon="mdi:phone-plus"
-              />
-              <FormDatePicker
-                label="Location Start Date"
-                name="locStartDate"
-                errors={errors}
-                control={control}
-              />
-              <FormDatePicker
-                label="Location End Date"
-                name="locEndDate"
-                errors={errors}
-                control={control}
-              />
-              <FormDatePicker
-                label="POC Start Date"
-                name="pocStartDate"
-                errors={errors}
-                control={control}
-              />
-              <FormDatePicker
-                label="POC End Date"
-                name="pocEndDate"
-                errors={errors}
-                control={control}
-              />
-              <FormInput
-                label="Units"
-                name="units"
-                register={form.register}
-                errors={errors}
-                icon="mdi:numeric"
-                type="number"
-              />
-              <FormInput
-                label="Hours"
-                name="hours"
-                register={form.register}
-                errors={errors}
-                icon="mdi:clock"
-                type="number"
-              />
-              <CaseManagerForm control={control} />
-              <CaregiverAssignment participantId={undefined} />
+            {/* Datos Personales */}
+            <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-blue-600 mb-2 border-b border-gray-300 pb-1">Personal Information</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <FormInput
+                  label="Name *"
+                  name="name"
+                  register={form.register}
+                  errors={errors}
+                  icon="mdi:user"
+                  placeholder="Type name"
+                />
+                <FormInput
+                  label="Medicaid ID *"
+                  name="medicaidId"
+                  register={form.register}
+                  errors={errors}
+                  icon="mdi:card-account-details-outline"
+                  placeholder="Type Medicaid ID"
+                />
+                <FormDatePicker
+                  label="Date of Birth *"
+                  name="dob"
+                  errors={errors}
+                  control={control}
+                />
+                <FormSelect
+                  label="Gender *"
+                  name="gender"
+                  errors={errors}
+                  options={[
+                    { value: "M", label: "Male" },
+                    { value: "F", label: "Female" },
+                    { value: "O", label: "Other" },
+                  ]}
+                  control={control}
+                />
+                <div className="col-span-2 flex gap-6">
+                  <FormCheckbox label="Is Active" name="isActive" errors={errors} control={control} />
+                  <FormCheckbox label="HDM" name="hdm" errors={errors} control={control} />
+                  <FormCheckbox label="ADHC" name="adhc" errors={errors} control={control} />
+                </div>
+              </div>
             </div>
-            <div className="mt-6 flex justify-end">
-              <Button
-                type="submit"
-                className="w-32 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
-                disabled={isLoading}
-              >
-                {isLoading ? "Saving" : "Save"}
-              </Button>
+
+            {/* Ubicación */}
+            <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-blue-600 mb-2 border-b border-gray-300 pb-1">Location</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <FormInput
+                  label="Location *"
+                  name="location"
+                  register={form.register}
+                  errors={errors}
+                  icon="mdi:map-marker"
+                  placeholder="Type location"
+                />
+                <FormInput
+                  label="Community *"
+                  name="community"
+                  register={form.register}
+                  errors={errors}
+                  icon="mdi:account-group"
+                  placeholder="Type community"
+                />
+                <FormInput
+                  label="Address *"
+                  name="address"
+                  register={form.register}
+                  errors={errors}
+                  icon="mdi:home"
+                  placeholder="Type address"
+                  className="col-span-2"
+                />
+              </div>
+            </div>
+
+            {/* Contacto */}
+            <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-blue-600 mb-2 border-b border-gray-300 pb-1">Contact</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <FormInput
+                  label="Primary Phone *"
+                  name="primaryPhone"
+                  register={form.register}
+                  errors={errors}
+                  icon="mdi:phone"
+                  placeholder="Type primary phone"
+                />
+                <FormInput
+                  label="Secondary Phone"
+                  name="secondaryPhone"
+                  register={form.register}
+                  errors={errors}
+                  icon="mdi:phone-plus"
+                  placeholder="Type secondary phone"
+                />
+              </div>
+            </div>
+
+            {/* Fechas */}
+            <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-blue-600 mb-2 border-b border-gray-300 pb-1">Dates</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <FormDatePicker
+                  label="Location Start Date *"
+                  name="locStartDate"
+                  errors={errors}
+                  control={control}
+                />
+                <FormDatePicker
+                  label="Location End Date *"
+                  name="locEndDate"
+                  errors={errors}
+                  control={control}
+                />
+                <FormDatePicker
+                  label="POC Start Date *"
+                  name="pocStartDate"
+                  errors={errors}
+                  control={control}
+                />
+                <FormDatePicker
+                  label="POC End Date *"
+                  name="pocEndDate"
+                  errors={errors}
+                  control={control}
+                />
+              </div>
+            </div>
+
+            {/* Unidades y Horas */}
+            <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-blue-600 mb-2 border-b border-gray-300 pb-1">Units & Hours</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <FormInput
+                  label="Units"
+                  name="units"
+                  register={form.register}
+                  errors={errors}
+                  icon="mdi:numeric"
+                  type="number"
+                  placeholder="Type units"
+                />
+                <FormInput
+                  label="Hours"
+                  name="hours"
+                  register={form.register}
+                  errors={errors}
+                  icon="mdi:clock"
+                  type="number"
+                  placeholder="Type hours"
+                />
+              </div>
+            </div>
+
+            {/* Case Manager */}
+            <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-blue-600 mb-2 border-b border-gray-300 pb-1">Case Manager</h2>
+              <div className="col-span-2 flex items-center justify-between gap-2">
+                <CaseManagerForm control={control} />
+                <Button
+                  type="submit"
+                  className="rounded-lg bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 py-2 px-4 min-w-[120px] shadow-lg transition-all h-10 flex items-center justify-center font-semibold"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Saving" : "Save"}
+                </Button>
+              </div>
             </div>
           </form>
         </FormProvider>
