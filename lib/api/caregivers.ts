@@ -1,75 +1,54 @@
-// api/caregivers.ts
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../config/axios.config";
-import { Caregiver, CaregiverResponse } from "../types/caregivers"; // Necesario para tipado de las respuestas de la API
+// lib/api/caregivers.ts
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { api } from "@/config/axios.config";
+import { Caregiver, CreateCaregiverDto } from "@/lib/types/caregivers"; // Solo los tipos necesarios
 
-// Listar todos los cuidadores
-const fetchCaregivers = async (): Promise<CaregiverResponse> => {
-  const response = await api.get("/caregivers");
-  return response.data;
+export type CaregiversResponse = {
+  data: Caregiver[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 };
 
 export const useCaregivers = () => {
-  return useQuery({
+  return useQuery<CaregiversResponse, Error>({
     queryKey: ["caregivers"],
-    queryFn: fetchCaregivers,
-  });
-};
-
-// Listar cuidadores asignados a un participante
-const fetchAssignedCaregivers = async (participantId: number): Promise<CaregiverResponse> => {
-  const response = await api.get(`/participants/${participantId}/caregivers`);
-  return response.data;
-};
-
-export const useAssignedCaregivers = (participantId: number) => {
-  return useQuery({
-    queryKey: ["assignedCaregivers", participantId],
-    queryFn: () => fetchAssignedCaregivers(participantId),
-    enabled: !!participantId,
-  });
-};
-
-// Asignar un cuidador a un participante
-const assignCaregiver = async ({
-  participantId,
-  caregiverId,
-}: {
-  participantId: number;
-  caregiverId: number;
-}): Promise<{ success: boolean; message: string }> => {
-  const response = await api.post(`/participants/${participantId}/caregivers/${caregiverId}`);
-  return response.data;
-};
-
-export const useAssignCaregiver = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: assignCaregiver,
-    onSuccess: (_, { participantId }) => {
-      queryClient.invalidateQueries({ queryKey: ["assignedCaregivers", participantId] });
+    queryFn: async () => {
+      const response = await api.get<CaregiversResponse>("/caregivers", {
+        params: {
+          page: 1,
+          pageSize: 10,
+        },
+      });
+      return response.data;
     },
   });
 };
 
-// Desvincular un cuidador de un participante
-const unassignCaregiver = async ({
-  participantId,
-  caregiverId,
-}: {
-  participantId: number;
-  caregiverId: number;
-}): Promise<{ success: boolean; message: string }> => {
-  const response = await api.delete(`/participants/${participantId}/caregivers/${caregiverId}`);
-  return response.data;
+export const useCreateCaregiver = () => {
+  return useMutation({
+    mutationFn: async (createCaregiverDto: CreateCaregiverDto) => {
+      const response = await api.post("/caregivers", createCaregiverDto);
+      return response.data;
+    },
+  });
+};
+
+export const useAssignCaregiver = () => {
+  return useMutation({
+    mutationFn: async ({ participantId, caregiverId }: { participantId: number; caregiverId: number }) => {
+      const response = await api.post(`/participants/${participantId}/caregivers/${caregiverId}`);
+      return response.data;
+    },
+  });
 };
 
 export const useUnassignCaregiver = () => {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: unassignCaregiver,
-    onSuccess: (_, { participantId }) => {
-      queryClient.invalidateQueries({ queryKey: ["assignedCaregivers", participantId] });
+    mutationFn: async ({ participantId, caregiverId }: { participantId: number; caregiverId: number }) => {
+      const response = await api.delete(`/participants/${participantId}/caregivers/${caregiverId}`);
+      return response.data;
     },
   });
 };

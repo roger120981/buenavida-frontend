@@ -1,5 +1,6 @@
 // lib/schemas/participantSchema.ts
 import { z } from "zod";
+import { CaregiverAssignment } from "@/lib/types/caregivers"; // MODIFICACIÓN: Añadida importación del tipo CaregiverAssignment
 
 export const caseManagerSchema = z.object({
   connect: z.object({ id: z.number() }).optional(),
@@ -33,6 +34,7 @@ export const participantSchema = z.object({
   hdm: z.boolean().optional(),
   adhc: z.boolean().optional(),
   caseManager: caseManagerSchema,
+  caregiverAssignments: z.array(z.object({ caregiverId: z.number(), caregiverName: z.string() })).optional(), // MODIFICACIÓN: Añadido el campo caregiverAssignments al esquema
 });
 
 export const updateParticipantSchema = participantSchema.partial().extend({

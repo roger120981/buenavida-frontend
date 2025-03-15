@@ -10,10 +10,13 @@ import { FormDatePicker } from "@/components/form/FormDatePicker";
 import { FormSelect } from "@/components/form/FormSelect";
 import { FormCheckbox } from "@/components/form/FormCheckbox";
 import { CaseManagerForm } from "@/components/form/CaseManagerForm";
+import { CaregiverAssignment } from "@/components/form/CaregiverAssignment";
 import { useCreateParticipant } from "@/lib/api/participants";
+import { useAssignCaregiver } from "@/lib/api/caregivers";
 import { ParticipantFormData, participantSchema } from "@/lib/schemas/participantSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateParticipantDto } from "@/lib/types/participants";
+import { CaregiverAssignment as CaregiverAssignmentType } from "@/lib/types/caregivers";
 import { toast } from "@/components/ui/use-toast";
 import { AxiosError } from "axios";
 
@@ -22,7 +25,7 @@ interface ErrorResponse {
   message?: string;
 }
 
-export default function CreateParticipantPage({ params: { lng } }: { params: { lng: string } }) {
+export default function CreateParticipantPage({ params }: { params: { lng: string } }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,12 +54,14 @@ export default function CreateParticipantPage({ params: { lng } }: { params: { l
         connect: { id: undefined },
         create: undefined,
       },
+      caregiverAssignments: [], // Mantenerlo para el frontend, pero no enviarlo al backend
     },
     shouldFocusError: false,
   });
 
-  const { handleSubmit, control, formState: { errors }, watch, trigger } = form;
+  const { handleSubmit, control, formState: { errors }, watch, trigger, getValues } = form;
   const createParticipantMutation = useCreateParticipant();
+  const assignCaregiverMutation = useAssignCaregiver();
 
   const caseManagerValue = watch("caseManager");
   console.log("Current caseManager value:", caseManagerValue);
@@ -67,7 +72,13 @@ export default function CreateParticipantPage({ params: { lng } }: { params: { l
     try {
       await trigger("caseManager.connect.id");
       const transformedData: CreateParticipantDto = {
-        ...data,
+        name: data.name,
+        medicaidId: data.medicaidId,
+        dob: data.dob,
+        gender: data.gender,
+        isActive: data.isActive,
+        hdm: data.hdm,
+        adhc: data.adhc,
         location: data.location,
         community: data.community,
         address: data.address,
@@ -85,11 +96,22 @@ export default function CreateParticipantPage({ params: { lng } }: { params: { l
             ? { id: Number(data.caseManager.connect.id) }
             : undefined,
         },
-      };
+      }; // MODIFICACIÓN: Excluimos caregiverAssignments del transformedData para evitar que se envíe al backend
 
       console.log("Transformed data for participant:", transformedData);
 
-      await createParticipantMutation.mutateAsync(transformedData);
+      // Crear el participante
+      const createdParticipant = await createParticipantMutation.mutateAsync(transformedData);
+
+      // Procesar las asignaciones de caregivers después de crear el participante
+      const caregiverAssignments: CaregiverAssignmentType[] = getValues("caregiverAssignments") || [];
+      for (const assignment of caregiverAssignments) {
+        await assignCaregiverMutation.mutateAsync({
+          participantId: createdParticipant.id,
+          caregiverId: assignment.caregiverId,
+        });
+      }
+
       toast({
         title: "Success",
         description: "Participant created successfully!",
@@ -293,6 +315,14 @@ export default function CreateParticipantPage({ params: { lng } }: { params: { l
                   type="number"
                   placeholder="Type hours"
                 />
+              </div>
+            </div>
+
+            {/* MODIFICACIÓN: Añadida sección para Caregiver Assignment */}
+            <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-blue-600 mb-2 border-b border-gray-300 pb-1">Caregiver Assignment</h2>
+              <div className="col-span-2 flex items-center justify-between gap-2">
+                <CaregiverAssignment />
               </div>
             </div>
 
