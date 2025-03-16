@@ -1,7 +1,7 @@
 // app/[lang]/participants/[id]/edit/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ export default function EditParticipantPage({ params: { lang, id } }: { params: 
   const router = useRouter();
   const participantId = parseInt(id, 10);
   const [isLoading, setIsLoading] = useState(false);
-  const [isDataLoaded, setIsDataLoaded] = useState(false); // Estado para controlar la carga inicial
+  const formStateRef = useRef<UpdateParticipantFormData | null>(null); // Estado persistente
 
   const { data: participant, isLoading: isParticipantLoading } = useParticipantById(participantId);
   const updateParticipantMutation = useUpdateParticipant();
@@ -41,7 +41,7 @@ export default function EditParticipantPage({ params: { lang, id } }: { params: 
       name: "",
       medicaidId: "",
       dob: "",
-      gender: undefined, // Inicializamos con undefined, pero evitaremos validación prematura
+      gender: undefined,
       isActive: true,
       hdm: false,
       adhc: false,
@@ -62,68 +62,99 @@ export default function EditParticipantPage({ params: { lang, id } }: { params: 
       },
       caregiverAssignments: [],
     },
-    shouldFocusError: false,
-    mode: "onChange", // Validar al cambiar los valores, pero evitaremos validación inicial
+    mode: "onSubmit", // Validación solo al enviar
   });
 
   const { handleSubmit, control, formState: { errors }, trigger, reset, setValue, getValues } = form;
 
-  // Cargar datos del participante
+  // Cargar y restaurar datos del participante
   useEffect(() => {
-    if (participant && !isParticipantLoading && !isDataLoaded) {
+    if (participant && !isParticipantLoading) {
       console.log("Participant data on load:", participant);
-      console.log("Participant gender on load:", participant.gender);
+      console.log("Participant gender on load:", participant?.gender);
+      console.log("Participant cmID on load:", (participant as any)?.cmID || participant?.caseManager?.id);
 
-      reset({
-        name: participant.name || "",
-        medicaidId: participant.medicaidId || "",
-        dob: participant.dob ? participant.dob.split("T")[0] : "",
-        gender: ["M", "F", "O"].includes(participant.gender) ? (participant.gender as "M" | "F" | "O") : undefined,
-        isActive: participant.isActive ?? true,
-        hdm: participant.hdm ?? false,
-        adhc: participant.adhc ?? false,
-        location: participant.location || "",
-        community: participant.community || "",
-        address: participant.address || "",
-        primaryPhone: participant.primaryPhone || "",
-        secondaryPhone: participant.secondaryPhone || "",
-        locStartDate: participant.locStartDate ? participant.locStartDate.split("T")[0] : "",
-        locEndDate: participant.locEndDate ? participant.locEndDate.split("T")[0] : "",
-        pocStartDate: participant.pocStartDate ? participant.pocStartDate.split("T")[0] : "",
-        pocEndDate: participant.pocEndDate ? participant.pocEndDate.split("T")[0] : "",
-        units: participant.units ?? 0,
-        hours: participant.hours ?? 0,
+      // Restaurar estado previo si existe, o usar datos del backend
+      const initialValues: UpdateParticipantFormData = {
+        name: participant?.name || formStateRef.current?.name || "",
+        medicaidId: participant?.medicaidId || formStateRef.current?.medicaidId || "",
+        dob: participant?.dob ? participant.dob.split("T")[0] : formStateRef.current?.dob || "",
+        gender: ["M", "F", "O"].includes(participant?.gender ?? "")
+          ? (participant?.gender as "M" | "F" | "O")
+          : formStateRef.current?.gender || undefined,
+        isActive: participant?.isActive ?? formStateRef.current?.isActive ?? true,
+        hdm: participant?.hdm ?? formStateRef.current?.hdm ?? false,
+        adhc: participant?.adhc ?? formStateRef.current?.adhc ?? false,
+        location: participant?.location || formStateRef.current?.location || "",
+        community: participant?.community || formStateRef.current?.community || "",
+        address: participant?.address || formStateRef.current?.address || "",
+        primaryPhone: participant?.primaryPhone || formStateRef.current?.primaryPhone || "",
+        secondaryPhone: participant?.secondaryPhone || formStateRef.current?.secondaryPhone || "",
+        locStartDate: participant?.locStartDate ? participant.locStartDate.split("T")[0] : formStateRef.current?.locStartDate || "",
+        locEndDate: participant?.locEndDate ? participant.locEndDate.split("T")[0] : formStateRef.current?.locEndDate || "",
+        pocStartDate: participant?.pocStartDate ? participant.pocStartDate.split("T")[0] : formStateRef.current?.pocStartDate || "",
+        pocEndDate: participant?.pocEndDate ? participant.pocEndDate.split("T")[0] : formStateRef.current?.pocEndDate || "",
+        units: participant?.units ?? formStateRef.current?.units ?? 0,
+        hours: participant?.hours ?? formStateRef.current?.hours ?? 0,
         caseManager: {
-          connect: { id: (participant as any).cmID || participant.caseManager?.id || undefined },
+          connect: { id: (participant as any)?.cmID || participant?.caseManager?.id || formStateRef.current?.caseManager?.connect?.id || null },
           create: undefined,
         },
-        caregiverAssignments: participant.caregivers?.map((assignment) => ({
+        caregiverAssignments: participant?.caregivers?.map((assignment) => ({
           caregiverId: assignment.caregiverId,
           caregiverName: assignment.caregiver.name,
-        })) || [],
-      });
+        })) || formStateRef.current?.caregiverAssignments || [],
+      };
 
-      // Forzar la selección de gender si es válido
-      if (["M", "F", "O"].includes(participant.gender)) {
-        setValue("gender", participant.gender as "M" | "F" | "O", { shouldValidate: true });
+      reset(initialValues);
+
+      // Forzar la selección de gender
+      if (["M", "F", "O"].includes(participant?.gender ?? "")) {
+        setValue("gender", participant?.gender as "M" | "F" | "O", { shouldValidate: false });
+      } else if (!participant?.gender) {
+        console.log("Gender not present in backend response, setting default to 'F'");
+        setValue("gender", "F", { shouldValidate: false });
       }
 
-      setIsDataLoaded(true);
+      // Depuración y sincronización de caregivers
+      console.log("Caregiver assignments on load:", getValues("caregiverAssignments"));
+      if (participant?.caregivers && getValues("caregiverAssignments")?.length === 0) {
+        setValue(
+          "caregiverAssignments",
+          participant.caregivers.map((assignment) => ({
+            caregiverId: assignment.caregiverId,
+            caregiverName: assignment.caregiver.name,
+          })),
+          { shouldValidate: false }
+        );
+      }
+
+      // Forzar la selección de caseManager
+      const caseManagerId = (participant as any)?.cmID || participant?.caseManager?.id;
+      if (caseManagerId !== undefined && caseManagerId !== null) {
+        setValue("caseManager.connect.id", caseManagerId, { shouldValidate: false });
+      } else {
+        console.log("cmID not present in backend response, setting default to null");
+        setValue("caseManager.connect.id", null, { shouldValidate: false });
+      }
 
       // Mostrar notificación si el gender no es válido
-      if (participant.gender && !["M", "F", "O"].includes(participant.gender)) {
+      if (participant?.gender && !["M", "F", "O"].includes(participant.gender)) {
         toast({
           title: "Invalid Gender Value",
           description: `The gender value is invalid (received '${participant.gender}'). Please select M, F, or O.`,
           color: "destructive",
         });
       }
-    }
-  }, [participant, isParticipantLoading, isDataLoaded, reset, setValue]);
 
-  // Mostrar notificación si hay errores de validación al cargar, pero solo después de la carga inicial
+      // Guardar el estado inicial en el ref
+      formStateRef.current = initialValues;
+    }
+  }, [participant, isParticipantLoading, reset, setValue, getValues]);
+
+  // Restaurar notificaciones de errores al cargar
   useEffect(() => {
-    if (errors && Object.keys(errors).length > 0 && isDataLoaded) {
+    if (errors && Object.keys(errors).length > 0 && !isParticipantLoading) {
       const errorMessages = Object.values(errors)
         .map((error) => error?.message)
         .filter((msg) => msg)
@@ -134,7 +165,17 @@ export default function EditParticipantPage({ params: { lang, id } }: { params: 
         color: "destructive",
       });
     }
-  }, [errors, isDataLoaded]);
+  }, [errors, isParticipantLoading]);
+
+  // Depuración adicional para confirmar los valores aplicados
+  useEffect(() => {
+    if (!isParticipantLoading) {
+      console.log("Current form values after load:");
+      console.log("Gender:", getValues("gender"));
+      console.log("Case Manager ID:", getValues("caseManager.connect.id"));
+      console.log("Caregiver Assignments:", getValues("caregiverAssignments"));
+    }
+  }, [isParticipantLoading, getValues]);
 
   const onSubmit = async (data: UpdateParticipantFormData) => {
     console.log("Submitting updated participant data:", data);
