@@ -1,5 +1,4 @@
 // lib/types/participants.ts
-
 export interface CaseManagerRelation {
   create?: {
     name: string;
@@ -76,9 +75,16 @@ export interface Participant {
   hours?: number;
   hdm?: boolean;
   adhc?: boolean;
-  caseManager: { id: number; name: string };
-  createdAt: string; // Añadido
-  updatedAt: string; // Añadido
+  caseManager?: { id: number; name: string }; // Revertido a caseManager para compatibilidad con findAll
+  createdAt: string;
+  updatedAt: string;
+  caregivers?: Array<{
+    participantId: number;
+    caregiverId: number;
+    assignedAt: string;
+    assignedBy: string;
+    caregiver: { id: number; name: string };
+  }>;
 }
 
 export interface PaginatedParticipantResponse {
