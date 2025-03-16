@@ -1,5 +1,5 @@
 // components/form/CaseManagerForm.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import { CaseManager, Agency, CreateCaseManagerResponse } from "@/lib/types/case
 import { toast } from "@/components/ui/use-toast";
 
 interface CaseManagerFormProps {
-  control: any;
+  control?: any;
 }
 
 export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) {
@@ -99,12 +99,11 @@ export function CaseManagerForm({ control: propControl }: CaseManagerFormProps) 
           <Controller
             name="caseManager.connect.id"
             control={control}
-            defaultValue={null}
             render={({ field: { onChange, value } }) => (
               <div className="w-4/5">
                 <Select
                   onValueChange={(val) => {
-                    console.log("Selected value:", val);
+                    console.log("CaseManagerForm: Selected value:", val);
                     onChange(val ? parseInt(val, 10) : null);
                   }}
                   value={value?.toString() || ""}

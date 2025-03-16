@@ -57,7 +57,7 @@ export default function EditParticipantPage({ params: { lang, id } }: { params: 
       units: 0,
       hours: 0,
       caseManager: {
-        connect: { id: undefined },
+        connect: { id: null },
         create: undefined,
       },
       caregiverAssignments: [],
@@ -65,7 +65,7 @@ export default function EditParticipantPage({ params: { lang, id } }: { params: 
     mode: "onSubmit", // Validación solo al enviar
   });
 
-  const { handleSubmit, control, formState: { errors }, trigger, reset, setValue, getValues } = form;
+  const { handleSubmit, control, formState: { errors }, trigger, reset, setValue, getValues, watch } = form;
 
   // Cargar y restaurar datos del participante
   useEffect(() => {
@@ -152,6 +152,37 @@ export default function EditParticipantPage({ params: { lang, id } }: { params: 
     }
   }, [participant, isParticipantLoading, reset, setValue, getValues]);
 
+  // Forzar la sincronización de gender y caseManager después de cada carga
+  useEffect(() => {
+    if (!isParticipantLoading) {
+      const currentGender = watch("gender");
+      const currentCaseManagerId = watch("caseManager.connect.id");
+
+      console.log("Watched values after load:");
+      console.log("Gender (watched):", currentGender);
+      console.log("Case Manager ID (watched):", currentCaseManagerId);
+
+      // Forzar gender si no está definido
+      if (!currentGender && participant?.gender) {
+        console.log("Forcing gender sync:", participant.gender);
+        setValue("gender", participant.gender as "M" | "F" | "O", { shouldValidate: false });
+      } else if (!currentGender) {
+        console.log("Gender still not present, forcing default to 'F'");
+        setValue("gender", "F", { shouldValidate: false });
+      }
+
+      // Forzar caseManager si no está definido
+      const caseManagerId = (participant as any)?.cmID || participant?.caseManager?.id;
+      if (caseManagerId !== undefined && caseManagerId !== null && currentCaseManagerId !== caseManagerId) {
+        console.log("Forcing caseManager sync:", caseManagerId);
+        setValue("caseManager.connect.id", caseManagerId, { shouldValidate: false });
+      } else if (currentCaseManagerId === undefined) {
+        console.log("Case Manager ID still not present, forcing default to null");
+        setValue("caseManager.connect.id", null, { shouldValidate: false });
+      }
+    }
+  }, [isParticipantLoading, participant, watch, setValue]);
+
   // Restaurar notificaciones de errores al cargar
   useEffect(() => {
     if (errors && Object.keys(errors).length > 0 && !isParticipantLoading) {
@@ -170,10 +201,10 @@ export default function EditParticipantPage({ params: { lang, id } }: { params: 
   // Depuración adicional para confirmar los valores aplicados
   useEffect(() => {
     if (!isParticipantLoading) {
-      console.log("Current form values after load:");
-      console.log("Gender:", getValues("gender"));
-      console.log("Case Manager ID:", getValues("caseManager.connect.id"));
-      console.log("Caregiver Assignments:", getValues("caregiverAssignments"));
+      console.log("Current form values after load (final):");
+      console.log("Gender (final):", getValues("gender"));
+      console.log("Case Manager ID (final):", getValues("caseManager.connect.id"));
+      console.log("Caregiver Assignments (final):", getValues("caregiverAssignments"));
     }
   }, [isParticipantLoading, getValues]);
 
