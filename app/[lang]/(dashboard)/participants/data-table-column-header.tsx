@@ -52,16 +52,16 @@ export function DataTableColumnHeader<TData>({
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
             <ChevronUp className="mr-2 h-3.5 w-3.5 text-gray-500" />
-            Ascendente
+            Ascending
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
             <ChevronDown className="mr-2 h-3.5 w-3.5 text-gray-500" />
-            Descendente
+            Descending
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
             <Eye className="mr-2 h-3.5 w-3.5 text-gray-500" />
-            Ocultar
+            Hide
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

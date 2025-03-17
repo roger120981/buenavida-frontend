@@ -187,7 +187,7 @@ export function DataTable({
                   colSpan={columns.length}
                   className="h-24 text-center text-gray-500"
                 >
-                  Sin resultados.
+                  No results.
                 </TableCell>
               </TableRow>
             )}

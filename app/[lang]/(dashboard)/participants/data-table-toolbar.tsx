@@ -38,7 +38,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     <div className="flex items-center justify-between bg-white shadow-md rounded-lg p-4 mb-4 border border-gray-100">
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-700">Mostrar</span>
+          <span className="text-sm font-medium text-gray-700">Show</span>
           <Select
             onValueChange={(value) => table.setPageSize(Number(value))}
             defaultValue="10"
@@ -60,7 +60,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         </div>
         <div className="relative">
           <Input
-            placeholder="Buscar por Medicaid ID..."
+            placeholder="Search by Medicaid ID..."
             value={getFilterValue("medicaidId")}
             onChange={(event) =>
               table.getColumn("medicaidId")?.setFilterValue(event.target.value)
@@ -88,14 +88,14 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
             onClick={() => table.resetColumnFilters()}
             className="h-9 px-3 rounded-md border border-gray-300 bg-white shadow-sm text-sm text-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
           >
-            Resetear
+            Reset
             <X className="ml-2 h-4 w-4" />
           </Button>
         )}
         <Button asChild className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-sm text-sm flex items-center">
           <Link href="/participants/create">
             <Plus className="w-5 h-5 mr-2" />
-            Crear Participante
+            Create Participant
           </Link>
         </Button>
       </div>

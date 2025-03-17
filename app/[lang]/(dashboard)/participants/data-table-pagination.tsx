@@ -34,7 +34,7 @@ export function DataTablePagination({
     <div className="flex flex-col md:flex-row items-center justify-end px-4 py-3 bg-white text-sm text-gray-600">
       <div className="flex flex-row items-center space-x-4">
         <span className="text-gray-500">
-          {table.getFilteredSelectedRowModel().rows.length} de {total} fila(s) seleccionada(s).
+          {table.getFilteredSelectedRowModel().rows.length} of {total} row(s) selected.
         </span>
         <div className="flex items-center space-x-1">
           <Button
@@ -43,7 +43,7 @@ export function DataTablePagination({
             onClick={() => setPage(1)}
             disabled={!canPreviousPage}
           >
-            <span className="sr-only">Ir a la primera página</span>
+            <span className="sr-only">Go to the first page</span>
             <ChevronsLeft className="h-4 w-4 text-current" />
           </Button>
           <Button
@@ -52,7 +52,7 @@ export function DataTablePagination({
             onClick={() => setPage(page - 1)}
             disabled={!canPreviousPage}
           >
-            <span className="sr-only">Ir a la página anterior</span>
+            <span className="sr-only">Go to the previous page</span>
             <ChevronLeft className="h-4 w-4 text-current" />
           </Button>
           <Button
@@ -61,7 +61,7 @@ export function DataTablePagination({
             onClick={() => setPage(page + 1)}
             disabled={!canNextPage}
           >
-            <span className="sr-only">Ir a la siguiente página</span>
+            <span className="sr-only">Go to the next page</span>
             <ChevronRight className="h-4 w-4 text-current" />
           </Button>
           <Button
@@ -70,12 +70,12 @@ export function DataTablePagination({
             onClick={() => setPage(totalPages)}
             disabled={!canNextPage}
           >
-            <span className="sr-only">Ir a la última página</span>
+            <span className="sr-only">Go to the last page</span>
             <ChevronsRight className="h-4 w-4 text-current" />
           </Button>
         </div>
         <span className="text-gray-500">
-          Página {page} de {totalPages} (Total: {total})
+          Page {page} of {totalPages} (Total: {total})
         </span>
       </div>
     </div>

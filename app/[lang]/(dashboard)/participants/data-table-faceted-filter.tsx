@@ -52,7 +52,7 @@ export function DataTableFacetedFilter<TData>({
         <SelectValue placeholder={title} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">Todos</SelectItem>
+        <SelectItem value="all">All</SelectItem>
         {options.map((option) => (
           <SelectItem key={option.value.toString()} value={option.value.toString()}>
             {option.label}

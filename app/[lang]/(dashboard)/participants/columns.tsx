@@ -141,7 +141,7 @@ export const columns: ColumnDef<Participant, any>[] = [
             <span className="text-sm text-gray-700 whitespace-nowrap">
               {formattedDate}
             </span>
-            <span className="text-xs text-gray-400">{age} años</span>
+            <span className="text-xs text-gray-400">{age} years</span>
           </div>
         </div>
       );
@@ -189,7 +189,7 @@ export const columns: ColumnDef<Participant, any>[] = [
             <span className="text-sm text-gray-700 whitespace-nowrap">
               {name}
             </span>
-            <span className="text-xs text-gray-400">Asignado</span>
+            <span className="text-xs text-gray-400">Assigned</span>
           </div>
         </div>
       );

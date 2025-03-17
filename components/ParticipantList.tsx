@@ -85,11 +85,11 @@ export default function ParticipantList() {
     console.log("onDelete function:", handleDelete);
   }, []);
 
-  if (isLoading || isActiveLoading || isInactiveLoading) return <div>Cargando participantes...</div>;
+  if (isLoading || isActiveLoading || isInactiveLoading) return <div>Loading participants...</div>;
   if (error) return <div>Error: {error.message}</div>;
-  if (activeError) return <div>Error al cargar participantes activos: {activeError.message}</div>;
-  if (inactiveError) return <div>Error al cargar participantes inactivos: {inactiveError.message}</div>;
-  if (!data || !activeData || !inactiveData) return <div>No hay datos disponibles</div>;
+  if (activeError) return <div>Error loading active participants: {activeError.message}</div>;
+  if (inactiveError) return <div>Error loading inactive participants: {inactiveError.message}</div>;
+  if (!data || !activeData || !inactiveData) return <div>No data available</div>;
 
   return (
     <>
@@ -123,7 +123,7 @@ export default function ParticipantList() {
             <div className="p-6 space-y-6">
               {/* Sección: Información Personal */}
               <div className="bg-white p-4 shadow border border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Información Personal</h3>
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Personal Information</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center space-x-3">
                     <Icon icon="heroicons:identification" className="w-5 h-5 text-blue-500" />
@@ -166,7 +166,7 @@ export default function ParticipantList() {
 
               {/* Sección: Información de Contacto */}
               <div className="bg-white p-4 shadow border border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Información de Contacto</h3>
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Contact Information</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center space-x-3">
                     <Icon icon="heroicons:map-pin" className="w-5 h-5 text-blue-500" />
@@ -200,7 +200,7 @@ export default function ParticipantList() {
 
               {/* Sección: Fechas */}
               <div className="bg-white p-4 shadow border border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Fechas</h3>
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Dates</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center space-x-3">
                     <Icon icon="heroicons:calendar" className="w-5 h-5 text-blue-500" />
@@ -227,7 +227,7 @@ export default function ParticipantList() {
 
               {/* Sección: Detalles del Programa */}
               <div className="bg-white p-4 shadow border border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Detalles del Programa</h3>
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Program Details</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {selectedParticipant.units && (
                     <div className="flex items-center space-x-3">
@@ -258,7 +258,7 @@ export default function ParticipantList() {
 
               {/* Sección: Metadatos */}
               <div className="bg-white p-4 shadow border border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Metadatos</h3>
+                <h3 className="text-xl font-semibold text-gray-800 border-b border-blue-200 pb-2 mb-4">Metadata</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center space-x-3">
                     <Icon icon="heroicons:user-circle" className="w-5 h-5 text-blue-500" />
