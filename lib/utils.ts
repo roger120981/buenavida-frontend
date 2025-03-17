@@ -133,7 +133,7 @@ export const formatDate = (date: string | number | Date): string => {
 
 export const formatDateShort = (date: string | number | Date): string => {
   const options: Intl.DateTimeFormatOptions = { day: "2-digit", month: "2-digit", year: "numeric" };
-  return new Date(date).toLocaleDateString("es-ES", options);
+  return new Date(date).toLocaleDateString("en-US", options);
 };
 
 
